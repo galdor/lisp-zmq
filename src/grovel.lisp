@@ -11,7 +11,7 @@
 (constant (max-vsm-size "ZMQ_MAX_VSM_SIZE"))
 
 (constantenum error-code
-              ;; Stqndard error codes
+              ;; Standard error codes
               ((:einval "EINVAL"))
               ((:enodev "ENODEV"))
               ((:eintr "EINTR"))
