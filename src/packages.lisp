@@ -6,6 +6,7 @@
            :init :term :with-context
 
            :socket-%socket :socket-lock :with-socket-locked
+           :socket-fd :socket-events
 
            :socket :close :with-socket :with-sockets
            :bind :connect
