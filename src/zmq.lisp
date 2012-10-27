@@ -236,8 +236,15 @@ SOCKET."
 
 (defun socket-fd (socket)
   "Return the file descriptor associated with SOCKET. This file descriptor can
-  be used to integrate SOCKET into an existing event loop."
+  be used to integrate SOCKET into an existing event loop. Look at the
+  official documentation of ZMQ_FD for getsockopt() for more information."
   (getsockopt socket :fd))
+
+(defun socket-events (socket)
+  "Return a list of events representing the current event state of
+  SOCKET. Look at the official documentation of ZMQ_EVENTS for getsockopt()
+  for more information."
+  (getsockopt socket :events))
 
 (defun device (type frontend backend)
   "Connect a frontend socket to a backend socket. This function always returns
