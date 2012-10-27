@@ -1,4 +1,11 @@
 
+Version 1.4.1 (2012-10-27)
+
+- Fix the WITH-SOCKET-LOCKED macro.
+- Fix DEVICE, and lock the sockets involved.
+- Add SOCKET-FD and SOCKET-EVENTS.
+
+
 Version 1.4.0 (2012-05-06)
 
 - Make compatible with the last version of CFFI.
