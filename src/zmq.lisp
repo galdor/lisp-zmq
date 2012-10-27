@@ -234,6 +234,11 @@ SOCKET."
              (call-ffi -1 '%setsockopt (socket-%socket socket) option
                        %value length))))))))
 
+(defun socket-fd (socket)
+  "Return the file descriptor associated with SOCKET. This file descriptor can
+  be used to integrate SOCKET into an existing event loop."
+  (getsockopt socket :fd))
+
 (defun device (type frontend backend)
   "Connect a frontend socket to a backend socket. This function always returns
 -1."
