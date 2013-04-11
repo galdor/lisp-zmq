@@ -1,4 +1,3 @@
-
 (in-package :zmq)
 
 (define-foreign-library libzmq
@@ -23,10 +22,7 @@
   (revents :short))
 
 (defcstruct msg
-  (content :pointer)
-  (flags :uchar)
-  (vsm-size :uchar)
-  (vsm-data :uchar :count #.max-vsm-size))
+  (_ :uchar :count 32))
 
 (defcfun (%bind "zmq_bind") :int
   (socket socket)
@@ -86,12 +82,12 @@
   (nitems :int)
   (timeout :long))
 
-(defcfun (%recv "zmq_recv") :int
+(defcfun (%recv "zmq_recvmsg") :int
   (socket socket)
   (msg (:pointer (:struct msg)))
   (flags recv-options))
 
-(defcfun (%send "zmq_send") :int
+(defcfun (%send "zmq_sendmsg") :int
   (socket socket)
   (msg (:pointer (:struct msg)))
   (flags send-options))
@@ -117,6 +113,7 @@
   (minor (:pointer :int))
   (patch (:pointer :int)))
 
+;; This should be phased out for 3.x
 (defcfun (%device "zmq_device") :int
   (device device-type)
   (frontend socket)
