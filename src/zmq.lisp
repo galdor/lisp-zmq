@@ -1,4 +1,3 @@
-
 (in-package :zmq)
 
 (defvar *errors* (make-hash-table)
@@ -166,27 +165,68 @@ SOCKET."
 (defun define-sockopt-type (option type &optional (length (foreign-type-size type)))
   (setf (gethash option *socket-options-type*) (list type length)))
 
-(define-sockopt-type :hwm :uint64)
-(define-sockopt-type :swap :int64)
-(define-sockopt-type :affinity :uint64)
-(define-sockopt-type :identity :char 255)
-(define-sockopt-type :subscribe :char)
-(define-sockopt-type :unsubscribe :char)
-(define-sockopt-type :rate :int64)
-(define-sockopt-type :recovery-ivl :int64)
-(define-sockopt-type :recovery-ivl-msec :int64)
-(define-sockopt-type :mcast-loop :int64)
-(define-sockopt-type :sndbuf :uint64)
-(define-sockopt-type :rcvbuf :uint64)
-(define-sockopt-type :rcvmore :int64)
-(define-sockopt-type :fd #+win32 win32-socket
-                         #-win32 :int)
-(define-sockopt-type :events :uint32)
-(define-sockopt-type :type :int)
-(define-sockopt-type :linger :int)
-(define-sockopt-type :reconnect-ivl :int)
-(define-sockopt-type :backlog :int)
-(define-sockopt-type :reconnect-ivl-max :int)
+;; see https://github.com/zeromq/czmq/blob/master/model/sockopts.xml
+(ecase zmq-version-major
+  (2
+   (define-sockopt-type :hwm :uint64)
+   (define-sockopt-type :swap :int64)
+   (define-sockopt-type :affinity :uint64)
+   (define-sockopt-type :identity :char 255)
+   (define-sockopt-type :subscribe :char)
+   (define-sockopt-type :unsubscribe :char)
+   (define-sockopt-type :rate :int64)
+   (define-sockopt-type :recovery-ivl :int64)
+   (define-sockopt-type :recovery-ivl-msec :int64)
+   (define-sockopt-type :mcast-loop :int64)
+   (define-sockopt-type :sndbuf :uint64)
+   (define-sockopt-type :rcvbuf :uint64)
+   (define-sockopt-type :rcvmore :int64)
+   (define-sockopt-type :fd #+win32 win32-socket
+                        #-win32 :int)
+   (define-sockopt-type :events :uint32)
+   (define-sockopt-type :type :int)
+   (define-sockopt-type :linger :int)
+   (define-sockopt-type :reconnect-ivl :int)
+   (define-sockopt-type :backlog :int)
+   (define-sockopt-type :reconnect-ivl-max :int))
+  ;; version 3
+  (3
+   (define-sockopt-type :type :int)
+   (define-sockopt-type :sndhwm :int)
+   (define-sockopt-type :rcvhwm :int)
+   (define-sockopt-type :affinity :uint64)
+   (define-sockopt-type :subscribe :char)
+   (define-sockopt-type :unsubscribe :char)
+   (define-sockopt-type :identity :char 255)
+   (define-sockopt-type :rate :int)
+   (define-sockopt-type :recovery-ivl :int)
+   (define-sockopt-type :sndbuf :int)
+   (define-sockopt-type :rcvbuf :int)
+   (define-sockopt-type :linger :int)
+   (define-sockopt-type :reconnect-ivl :int)
+   (define-sockopt-type :reconnect-ivl-max :int)
+   (define-sockopt-type :backlog :int)
+   (define-sockopt-type :maxmsgsize :int64)
+   (define-sockopt-type :multicast-hops :int)
+   (define-sockopt-type :rcvtimeo :int)
+   (define-sockopt-type :sndtimeo :int)
+   (define-sockopt-type :ipv6 :int)
+   (define-sockopt-type :ipv4only :int)
+   (define-sockopt-type :immediate :int)
+   (define-sockopt-type :delay-attach-on-connect :int)
+   (define-sockopt-type :router-mandatory :int)
+   (define-sockopt-type :router-raw :int)
+   (define-sockopt-type :xpub-verbose :int)
+   (define-sockopt-type :fd #+win32 win32-socket
+                        #-win32 :int)
+   (define-sockopt-type :events :int)
+   (define-sockopt-type :tcp-keepalive :int)
+   (define-sockopt-type :tcp-keepalive-idle :int)
+   (define-sockopt-type :tcp-keepalive-cnt :int)
+   (define-sockopt-type :tcp-keepalive-intvl :int)
+   (define-sockopt-type :tcp-accept-filter :char)
+   ))
+
 
 (defun getsockopt (socket option)
   "Get the value currently associated to a socket option."
@@ -458,7 +498,9 @@ ITEMS."
 (defun poll (items nb-items timeout)
   "Poll ITEMS with a timeout of TIMEOUT microseconds, -1 meaning no time
   limit. Return the number of items with signaled events."
-  (call-ffi -1 '%poll items nb-items timeout))
+  (call-ffi -1 '%poll items nb-items (if (eql 2 zmq-version-major)
+                                         (* 1000 timeout)
+                                         timeout)))
 
 (defun stopwatch-start ()
   "Start a timer, and return a handle."

@@ -1,4 +1,3 @@
-
 (include "zmq.h")
 #+win32 (include "Winsock2.h")
 
@@ -9,6 +8,8 @@
 #+win32 (ctype win32-socket "SOCKET")
 
 (constant (max-vsm-size "ZMQ_MAX_VSM_SIZE"))
+
+(constant (zmq-version-major "ZMQ_VERSION_MAJOR"))
 
 (constantenum error-code
               ;; Standard error codes
@@ -40,7 +41,8 @@
           ((:pollerr "ZMQ_POLLERR")))
 
 (bitfield recv-options
-          ((:noblock "ZMQ_NOBLOCK")))
+          ((:noblock "ZMQ_NOBLOCK"))
+          ((:dontwait "ZMQ_DONTWAIT")))
 
 (bitfield send-options
           ((:noblock "ZMQ_NOBLOCK"))
@@ -65,6 +67,8 @@
 
 (constantenum socket-option
               ((:hwm "ZMQ_HWM"))
+              ((:sndhwm "ZMQ_SNDHWM"))
+              ((:rcvhwm "ZMQ_RCVHWM"))
               ((:swap "ZMQ_SWAP"))
               ((:affinity "ZMQ_AFFINITY"))
               ((:identity "ZMQ_IDENTITY"))
@@ -83,7 +87,23 @@
               ((:linger "ZMQ_LINGER"))
               ((:reconnect-ivl "ZMQ_RECONNECT_IVL"))
               ((:backlog "ZMQ_BACKLOG"))
-              ((:reconnect-ivl-max "ZMQ_RECONNECT_IVL_MAX")))
+              ((:reconnect-ivl-max "ZMQ_RECONNECT_IVL_MAX"))
+              ((:maxmsgsize "ZMQ_MAXMSGSIZE"))
+              ((:multicast-hops "ZMQ_MULTICAST_HOPS"))
+              ((:rcvtimeo "ZMQ_RCVTIMEO"))
+              ((:sndtimeo "ZMQ_SNDTIMEO"))
+              ((:ipv6 "ZMQ_IPV6"))
+              ((:ipv4only "ZMQ_IPV4ONLY"))
+              ((:immediate "ZMQ_IMMEDIATE"))
+              ((:delay-attach-on-connect "ZMQ_DELAY_ATTACH_ON_CONNECT"))
+              ((:router-mandatory "ZMQ_ROUTER_MANDATORY"))
+              ((:router-raw "ZMQ_ROUTER_RAW"))
+              ((:xpub-verbose "ZMQ_XPUB_VERBOSE"))
+              ((:tcp-keepalive "ZMQ_TCP_KEEPALIVE"))
+              ((:tcp-keepalive_idle "ZMQ_TCP_KEEPALIVE_IDLE"))
+              ((:tcp-keepalive-cnt "ZMQ_TCP_KEEPALIVE_CNT"))
+              ((:tcp-keepalive-intvl "ZMQ_TCP_KEEPALIVE_INTVL"))
+              ((:tcp-accept-filter "ZMQ_TCP_ACCEPT_FILTER")))
 
 (constantenum device-type
               ((:queue "ZMQ_QUEUE"))

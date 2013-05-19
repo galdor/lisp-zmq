@@ -82,12 +82,12 @@
   (nitems :int)
   (timeout :long))
 
-(defcfun (%recv "zmq_recvmsg") :int
+(defcfun (%recv #.(if (eql 2 zmq-version-major) "zmq_recv" "zmq_recvmsg")) :int
   (socket socket)
   (msg (:pointer (:struct msg)))
   (flags recv-options))
 
-(defcfun (%send "zmq_sendmsg") :int
+(defcfun (%send #.(if (eql 2 zmq-version-major) "zmq_send" "zmq_sendmsg")) :int
   (socket socket)
   (msg (:pointer (:struct msg)))
   (flags send-options))
@@ -113,7 +113,6 @@
   (minor (:pointer :int))
   (patch (:pointer :int)))
 
-;; This should be phased out for 3.x
 (defcfun (%device "zmq_device") :int
   (device device-type)
   (frontend socket)
