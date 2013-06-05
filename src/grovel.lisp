@@ -41,8 +41,7 @@
           ((:pollerr "ZMQ_POLLERR")))
 
 (bitfield recv-options
-          ((:noblock "ZMQ_NOBLOCK"))
-          ((:dontwait "ZMQ_DONTWAIT")))
+          ((:noblock "ZMQ_NOBLOCK")))
 
 (bitfield send-options
           ((:noblock "ZMQ_NOBLOCK"))
