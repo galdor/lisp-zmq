@@ -106,3 +106,7 @@
               ((:queue "ZMQ_QUEUE"))
               ((:forwarder "ZMQ_FORWARDER"))
               ((:streamer "ZMQ_STREAMER")))
+
+
+(cstruct msg "zmq_msg_t")
+

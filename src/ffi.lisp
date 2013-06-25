@@ -12,7 +12,6 @@
 
 (defctype socket :pointer)
 (defctype context :pointer)
-(defctype msg :pointer)
 
 (defcstruct pollitem
   (socket socket)
@@ -20,9 +19,6 @@
       #-win32 :int)
   (events :short)
   (revents :short))
-
-(defcstruct msg
-  (_ :uchar :count 32))
 
 (defcfun (%bind "zmq_bind") :int
   (socket socket)
