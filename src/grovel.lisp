@@ -110,3 +110,8 @@
 
 (cstruct msg "zmq_msg_t")
 
+(cstruct pollitem "zmq_pollitem_t"
+         (socket "socket" :type :pointer)
+         (fd "fd" :type :auto)
+         (events "events" :type :auto)
+         (revents "revents" :type :auto))

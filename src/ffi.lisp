@@ -13,13 +13,6 @@
 (defctype socket :pointer)
 (defctype context :pointer)
 
-(defcstruct pollitem
-  (socket socket)
-  (fd #+win32 win32-socket
-      #-win32 :int)
-  (events :short)
-  (revents :short))
-
 (defcfun (%bind "zmq_bind") :int
   (socket socket)
   (endpoint :string))
