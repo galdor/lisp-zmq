@@ -35,6 +35,24 @@
 (defcfun (%init "zmq_init") context
   (io-threads :int))
 
+(defcfun (%term "zmq_term") :int
+  (context context))
+
+(when #.(eql zmq-version-major 3)
+      (defcfun (%ctx-new "zmq_ctx_new") context)
+
+      (defcfun (%ctx-destroy "zmq_ctx_destroy") :int
+        (context context))
+
+      (defcfun (%ctx-set "zmq_ctx_set") :int
+        (context context)
+        (option context-options)
+        (optval :int))
+
+      (defcfun (%ctx-get "zmq_ctx_get") :int
+        (context context)
+        (option context-options)))
+
 (defcfun (%msg-close "zmq_msg_close") :int
   (msg (:pointer (:struct msg))))
 
@@ -71,15 +89,27 @@
   (nitems :int)
   (timeout :long))
 
-(defcfun (%recv #.(if (eql 2 zmq-version-major) "zmq_recv" "zmq_recvmsg")) :int
-  (socket socket)
-  (msg (:pointer (:struct msg)))
-  (flags recv-options))
+(cond
+  (#.(eql zmq-version-major 2)
+     (defcfun (%recv "zmq_recv") :int
+       (socket socket)
+       (msg (:pointer (:struct msg)))
+       (flags recv-options))
 
-(defcfun (%send #.(if (eql 2 zmq-version-major) "zmq_send" "zmq_sendmsg")) :int
-  (socket socket)
-  (msg (:pointer (:struct msg)))
-  (flags send-options))
+     (defcfun (%send "zmq_send") :int
+       (socket socket)
+       (msg (:pointer (:struct msg)))
+       (flags send-options)))
+  (#.(eql zmq-version-major 3)
+     (defcfun (%recvmsg "zmq_recvmsg") :int
+       (socket socket)
+       (msg (:pointer (:struct msg)))
+       (flags recv-options))
+
+     (defcfun (%sendmsg "zmq_sendmsg") :int
+       (socket socket)
+       (msg (:pointer (:struct msg)))
+       (flags send-options))))
 
 (defcfun (%setsockopt "zmq_setsockopt") :int
   (socket socket)
@@ -94,9 +124,6 @@
 (defcfun (%strerror "zmq_strerror") :string
   (errnum :int))
 
-(defcfun (%term "zmq_term") :int
-  (context context))
-
 (defcfun (%version "zmq_version") :void
   (major (:pointer :int))
   (minor (:pointer :int))
@@ -106,6 +133,13 @@
   (device device-type)
   (frontend socket)
   (backend socket))
+
+; 3.x
+(when #.(eql zmq-version-major 3)
+  (defcfun (%proxy "zmq_proxy") :int
+    (frontend socket)
+    (backend socket)
+    (capture socket)))
 
 (defcfun (%stopwatch-start "zmq_stopwatch_start") :pointer)
 

@@ -1,3 +1,4 @@
+
 (in-package :zmq)
 
 (defvar *errors* (make-hash-table)
@@ -77,6 +78,23 @@ function is returned."
   (with-foreign-objects ((%major :int) (%minor :int) (%patch :int))
     (%version %major %minor %patch)
     (list (mem-ref %major :int) (mem-ref %minor :int) (mem-ref %patch :int))))
+
+(when #.(eql zmq-version-major 3)
+      (defun ctx-new ()
+        "Create and return a new context."
+        (call-ffi (null-pointer) '%ctx-new))
+
+      (defun ctx-destroy (context)
+        "Destroy a context."
+        (call-ffi -1 '%ctx-destroy context))
+
+      (defun ctx-set (context option value)
+        "Set the value associated to the option OPTION to VALUE for CONTEXT."
+        (call-ffi -1 '%ctx-set context option value))
+
+      (defun ctx-get (context option)
+        "Return the value associated to the option OPTION for CONTEXT."
+        (call-ffi -1 '%ctx-get context option)))
 
 (defun init (io-threads)
   "Create and return a new context."
@@ -165,68 +183,62 @@ SOCKET."
 (defun define-sockopt-type (option type &optional (length (foreign-type-size type)))
   (setf (gethash option *socket-options-type*) (list type length)))
 
-;; see https://github.com/zeromq/czmq/blob/master/model/sockopts.xml
-(ecase zmq-version-major
-  (2
-   (define-sockopt-type :hwm :uint64)
-   (define-sockopt-type :swap :int64)
-   (define-sockopt-type :affinity :uint64)
-   (define-sockopt-type :identity :char 255)
-   (define-sockopt-type :subscribe :char)
-   (define-sockopt-type :unsubscribe :char)
-   (define-sockopt-type :rate :int64)
-   (define-sockopt-type :recovery-ivl :int64)
-   (define-sockopt-type :recovery-ivl-msec :int64)
-   (define-sockopt-type :mcast-loop :int64)
-   (define-sockopt-type :sndbuf :uint64)
-   (define-sockopt-type :rcvbuf :uint64)
-   (define-sockopt-type :rcvmore :int64)
-   (define-sockopt-type :fd #+win32 win32-socket
-                        #-win32 :int)
-   (define-sockopt-type :events :uint32)
-   (define-sockopt-type :type :int)
-   (define-sockopt-type :linger :int)
-   (define-sockopt-type :reconnect-ivl :int)
-   (define-sockopt-type :backlog :int)
-   (define-sockopt-type :reconnect-ivl-max :int))
-  ;; version 3
-  (3
-   (define-sockopt-type :type :int)
-   (define-sockopt-type :sndhwm :int)
-   (define-sockopt-type :rcvhwm :int)
-   (define-sockopt-type :affinity :uint64)
-   (define-sockopt-type :subscribe :char)
-   (define-sockopt-type :unsubscribe :char)
-   (define-sockopt-type :identity :char 255)
-   (define-sockopt-type :rate :int)
-   (define-sockopt-type :recovery-ivl :int)
-   (define-sockopt-type :sndbuf :int)
-   (define-sockopt-type :rcvbuf :int)
-   (define-sockopt-type :linger :int)
-   (define-sockopt-type :reconnect-ivl :int)
-   (define-sockopt-type :reconnect-ivl-max :int)
-   (define-sockopt-type :backlog :int)
-   (define-sockopt-type :maxmsgsize :int64)
-   (define-sockopt-type :multicast-hops :int)
-   (define-sockopt-type :rcvtimeo :int)
-   (define-sockopt-type :sndtimeo :int)
-   (define-sockopt-type :ipv6 :int)
-   (define-sockopt-type :ipv4only :int)
-   (define-sockopt-type :immediate :int)
-   (define-sockopt-type :delay-attach-on-connect :int)
-   (define-sockopt-type :router-mandatory :int)
-   (define-sockopt-type :router-raw :int)
-   (define-sockopt-type :xpub-verbose :int)
-   (define-sockopt-type :fd #+win32 win32-socket
-                        #-win32 :int)
-   (define-sockopt-type :events :int)
-   (define-sockopt-type :tcp-keepalive :int)
-   (define-sockopt-type :tcp-keepalive-idle :int)
-   (define-sockopt-type :tcp-keepalive-cnt :int)
-   (define-sockopt-type :tcp-keepalive-intvl :int)
-   (define-sockopt-type :tcp-accept-filter :char)
-   ))
-
+(cond
+  (#.(eql zmq-version-major 2)
+     (define-sockopt-type :hwm :uint64)
+     (define-sockopt-type :swap :int64)
+     (define-sockopt-type :affinity :uint64)
+     (define-sockopt-type :identity :char 255)
+     (define-sockopt-type :subscribe :char)
+     (define-sockopt-type :unsubscribe :char)
+     (define-sockopt-type :rate :int64)
+     (define-sockopt-type :recovery-ivl :int64)
+     (define-sockopt-type :recovery-ivl-msec :int64)
+     (define-sockopt-type :mcast-loop :int64)
+     (define-sockopt-type :sndbuf :uint64)
+     (define-sockopt-type :rcvbuf :uint64)
+     (define-sockopt-type :rcvmore :int64)
+     (define-sockopt-type :fd #+win32 win32-socket
+                              #-win32 :int)
+     (define-sockopt-type :events :uint32)
+     (define-sockopt-type :type :int)
+     (define-sockopt-type :linger :int)
+     (define-sockopt-type :reconnect-ivl :int)
+     (define-sockopt-type :backlog :int)
+     (define-sockopt-type :reconnect-ivl-max :int))
+  (#.(eql zmq-version-major 3)
+     (define-sockopt-type :affinity :uint64)
+     (define-sockopt-type :subscribe :char)
+     (define-sockopt-type :unsubscribe :char)
+     (define-sockopt-type :identity :char 255)
+     (define-sockopt-type :rate :int)
+     (define-sockopt-type :recovery-ivl :int)
+     (define-sockopt-type :sndbuf :int)
+     (define-sockopt-type :rcvbuf :int)
+     (define-sockopt-type :rcvmore :int)
+     (define-sockopt-type :fd #+win32 win32-socket
+                              #-win32 :int)
+     (define-sockopt-type :events :int)
+     (define-sockopt-type :type :int)
+     (define-sockopt-type :linger :int)
+     (define-sockopt-type :reconnect-ivl :int)
+     (define-sockopt-type :backlog :int)
+     (define-sockopt-type :reconnect-ivl-max :int)
+     (define-sockopt-type :maxmsgsize :int64)
+     (define-sockopt-type :sndhwm :int)
+     (define-sockopt-type :rcvhwm :int)
+     (define-sockopt-type :multicast-hops :int)
+     (define-sockopt-type :rcvtimeo :int)
+     (define-sockopt-type :sndtimeo :int)
+     (define-sockopt-type :ipv4only :int)
+     (define-sockopt-type :last-endpoint :char)
+     (define-sockopt-type :router-mandatory :int)
+     (define-sockopt-type :tcp-keepalive :int)
+     (define-sockopt-type :tcp-keepalive-idle :int)
+     (define-sockopt-type :tcp-keepalive-cnt :int)
+     (define-sockopt-type :tcp-keepalive-intvl :int)
+     (define-sockopt-type :tcp-accept-filter :char)
+     (define-sockopt-type :delay-attach-on-connect :int)))
 
 (defun getsockopt (socket option)
   "Get the value currently associated to a socket option."
@@ -252,6 +264,8 @@ SOCKET."
 
 (defun setsockopt (socket option value)
   "Set the value associated to a socket option."
+  (when (member option '(:last-endpoint))
+    (error "Socket option ~A is read only." option))
   (let ((info (gethash option *socket-options-type*)))
     (unless info
       (error "Unknown socket option: ~A." option))
@@ -423,14 +437,36 @@ the call, SOURCE is an empty message."
 (defun send (socket message &optional flags)
   "Queue MESSAGE to be sent on SOCKET."
   (with-socket-locked (socket)
-    (call-ffi -1 '%send (socket-%socket socket) message
-              (foreign-bitfield-value 'send-options flags))))
+    (let ((function (cond
+                      (#.(eql zmq-version-major 2)
+                         '%send)
+                      (#.(eql zmq-version-major 3)
+                         '%sendmsg))))
+      (call-ffi -1 function (socket-%socket socket) message
+                (foreign-bitfield-value 'send-options flags)))))
 
 (defun recv (socket message &optional flags)
   "Receive a message from SOCKET and store it in MESSAGE."
   (with-socket-locked (socket)
-    (call-ffi -1 '%recv (socket-%socket socket) message
-              (foreign-bitfield-value 'recv-options flags))))
+    (let ((function (cond
+                      (#.(eql zmq-version-major 2)
+                         '%recv)
+                      (#.(eql zmq-version-major 3)
+                         '%recvmsg))))
+      (call-ffi -1 function (socket-%socket socket) message
+                (foreign-bitfield-value 'recv-options flags)))))
+
+(when #.(eql zmq-version-major 3)
+      (defun sendmsg (socket message &optional flags)
+        (with-socket-locked (socket)
+          (call-ffi -1 '%sendmsg (socket-%socket socket) message
+                    (foreign-bitfield-value 'send-options flags))))
+
+      (defun recvmsg (socket message &optional flags)
+        "Receive a message from SOCKET and store it in MESSAGE."
+        (with-socket-locked (socket)
+          (call-ffi -1 '%recvmsg (socket-%socket socket) message
+                    (foreign-bitfield-value 'recv-options flags)))))
 
 (defmacro with-poll-items ((items-var size-var) items &body body)
   "Evaluate BODY in an environment where ITEMS-VAR is bound to a foreign array
@@ -496,11 +532,12 @@ ITEMS."
   (foreign-slot-value poll-item '(:struct pollitem) 'fd))
 
 (defun poll (items nb-items timeout)
-  "Poll ITEMS with a timeout of TIMEOUT microseconds, -1 meaning no time
+  "Poll ITEMS with a timeout of TIMEOUT milliseconds, -1 meaning no time
   limit. Return the number of items with signaled events."
-  (call-ffi -1 '%poll items nb-items (if (eql 2 zmq-version-major)
-                                         (* 1000 timeout)
-                                         timeout)))
+  (when #.(eql zmq-version-major 2)
+    ;; Convert to microseconds
+    (setf timeout (* timeout 1000)))
+  (call-ffi -1 '%poll items nb-items timeout))
 
 (defun stopwatch-start ()
   "Start a timer, and return a handle."
