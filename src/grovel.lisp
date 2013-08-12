@@ -1,12 +1,12 @@
 
 (include "zmq.h")
-#+win32 (include "Winsock2.h")
+#+windows (include "Winsock2.h")
 
 (in-package :zmq)
 
 (ctype size-t "size_t")
 
-#+win32 (ctype win32-socket "SOCKET")
+#+windows (ctype win32-socket "SOCKET")
 
 (constant (max-vsm-size "ZMQ_MAX_VSM_SIZE") :optional t) ; 2.x
 
