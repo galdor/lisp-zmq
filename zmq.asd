@@ -8,7 +8,7 @@
   :author "Nicolas Martyanoff"
   :license "BSD"
   :description "A binding of the zmq transport layer."
-  :depends-on (:cffi :bordeaux-threads)
+  :depends-on (:cffi :bordeaux-threads :trivial-features)
   :in-order-to ((test-op (load-op zmq-test)))
   :components ((:module "src"
                 :components ((:file "packages")
