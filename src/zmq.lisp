@@ -171,11 +171,25 @@ SOCKET."
     (with-socket-locked (socket)
       (call-ffi -1 '%bind (socket-%socket socket) %endpoint))))
 
+(when #.(eql zmq-version-major 3)
+      (defun unbind (socket endpoint)
+        "Unbind SOCKET from the address ENDPOINT."
+        (with-foreign-string (%endpoint endpoint)
+          (with-socket-locked (socket)
+            (call-ffi -1 '%unbind (socket-%socket socket) %endpoint)))))
+
 (defun connect (socket endpoint)
   "Connect SOCKET to the address ENDPOINT."
   (with-foreign-string (%endpoint endpoint)
     (with-socket-locked (socket)
       (call-ffi -1 '%connect (socket-%socket socket) %endpoint))))
+
+(when #.(eql zmq-version-major 3)
+      (defun disconnect (socket endpoint)
+        "Disconnect SOCKET from the address ENDPOINT."
+        (with-foreign-string (%endpoint endpoint)
+          (with-socket-locked (socket)
+            (call-ffi -1 '%disconnect (socket-%socket socket) %endpoint)))))
 
 (defvar *socket-options-type* (make-hash-table)
   "A table to store the foreign type of each socket option.")

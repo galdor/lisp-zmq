@@ -17,12 +17,22 @@
   (socket socket)
   (endpoint :string))
 
+(when #.(eql zmq-version-major 3)
+      (defcfun (%unbind "zmq_unbind") :int
+        (socket socket)
+        (endpoint :string)))
+
 (defcfun (%close "zmq_close") :int
   (socket socket))
 
 (defcfun (%connect "zmq_connect") :int
   (socket socket)
   (endpoint :string))
+
+(when #.(eql zmq-version-major 3)
+      (defcfun (%unbind "zmq_disconnect") :int
+        (socket socket)
+        (endpoint :string)))
 
 (defcfun (%errno "zmq_errno") :int)
 
