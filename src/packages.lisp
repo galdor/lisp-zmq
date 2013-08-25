@@ -2,14 +2,17 @@
 (defpackage :zmq
   (:use :cl :cffi)
   (:export :version
+           :zmq-version-major :zmq-version-minor
 
            :init :term :with-context
+           :ctx-new :ctx-destroy :ctx-set :ctx-get
 
            :socket-%socket :socket-lock :with-socket-locked
            :socket-fd :socket-events
 
            :socket :close :with-socket :with-sockets
            :bind :connect
+           :unbind :disconnect
 
            :getsockopt :setsockopt
 
@@ -19,6 +22,7 @@
            :with-msg-init :with-msg-init-size :with-msg-init-data
            :msg-size :msg-data :msg-data-string :msg-data-array
            :msg-copy :msg-move
+           :msg-send :msg-recv
 
            :send :recv
            :with-poll-items

@@ -79,22 +79,32 @@ function is returned."
     (%version %major %minor %patch)
     (list (mem-ref %major :int) (mem-ref %minor :int) (mem-ref %patch :int))))
 
-(when #.(eql zmq-version-major 3)
-      (defun ctx-new ()
-        "Create and return a new context."
-        (call-ffi (null-pointer) '%ctx-new))
+(defmacro defun-zmq3 (name (&rest args) &rest body)
+  "Define a function which is only available in ZeroMQ 3.2. Using the function
+with ZeroMQ 2.x will raise an error."
+  (cond
+    (#.(eql zmq-version-major 3)
+       `(defun ,name (,@args)
+          ,@body))
+    (#.(eql zmq-version-major 2)
+       `(defun ,name (,@args)
+          (error "~A is only available in ZeroMQ 3.2." ',name)))))
 
-      (defun ctx-destroy (context)
-        "Destroy a context."
-        (call-ffi -1 '%ctx-destroy context))
+(defun-zmq3 ctx-new ()
+  "Create and return a new context."
+  (call-ffi (null-pointer) '%ctx-new))
 
-      (defun ctx-set (context option value)
-        "Set the value associated to the option OPTION to VALUE for CONTEXT."
-        (call-ffi -1 '%ctx-set context option value))
+(defun-zmq3 ctx-destroy (context)
+  "Destroy a context."
+  (call-ffi -1 '%ctx-destroy context))
 
-      (defun ctx-get (context option)
-        "Return the value associated to the option OPTION for CONTEXT."
-        (call-ffi -1 '%ctx-get context option)))
+(defun-zmq3 ctx-set (context option value)
+  "Set the value associated to the option OPTION to VALUE for CONTEXT."
+  (call-ffi -1 '%ctx-set context option value))
+
+(defun-zmq3 ctx-get (context option)
+  "Return the value associated to the option OPTION for CONTEXT."
+  (call-ffi -1 '%ctx-get context option))
 
 (defun init (io-threads)
   "Create and return a new context."
@@ -171,12 +181,11 @@ SOCKET."
     (with-socket-locked (socket)
       (call-ffi -1 '%bind (socket-%socket socket) %endpoint))))
 
-(when #.(eql zmq-version-major 3)
-      (defun unbind (socket endpoint)
-        "Unbind SOCKET from the address ENDPOINT."
-        (with-foreign-string (%endpoint endpoint)
-          (with-socket-locked (socket)
-            (call-ffi -1 '%unbind (socket-%socket socket) %endpoint)))))
+(defun-zmq3 unbind (socket endpoint)
+  "Unbind SOCKET from the address ENDPOINT."
+  (with-foreign-string (%endpoint endpoint)
+    (with-socket-locked (socket)
+      (call-ffi -1 '%unbind (socket-%socket socket) %endpoint))))
 
 (defun connect (socket endpoint)
   "Connect SOCKET to the address ENDPOINT."
@@ -184,12 +193,11 @@ SOCKET."
     (with-socket-locked (socket)
       (call-ffi -1 '%connect (socket-%socket socket) %endpoint))))
 
-(when #.(eql zmq-version-major 3)
-      (defun disconnect (socket endpoint)
-        "Disconnect SOCKET from the address ENDPOINT."
-        (with-foreign-string (%endpoint endpoint)
-          (with-socket-locked (socket)
-            (call-ffi -1 '%disconnect (socket-%socket socket) %endpoint)))))
+(defun-zmq3 disconnect (socket endpoint)
+  "Disconnect SOCKET from the address ENDPOINT."
+  (with-foreign-string (%endpoint endpoint)
+    (with-socket-locked (socket)
+      (call-ffi -1 '%disconnect (socket-%socket socket) %endpoint))))
 
 (defvar *socket-options-type* (make-hash-table)
   "A table to store the foreign type of each socket option.")
@@ -470,17 +478,17 @@ the call, SOURCE is an empty message."
       (call-ffi -1 function (socket-%socket socket) message
                 (foreign-bitfield-value 'recv-options flags)))))
 
-(when #.(eql zmq-version-major 3)
-      (defun sendmsg (socket message &optional flags)
-        (with-socket-locked (socket)
-          (call-ffi -1 '%sendmsg (socket-%socket socket) message
-                    (foreign-bitfield-value 'send-options flags))))
+(defun-zmq3 msg-send (message socket &optional flags)
+  "Send MESSAGE on SOCKET."
+  (with-socket-locked (socket)
+    (call-ffi -1 '%msg-send message (socket-%socket socket)
+              (foreign-bitfield-value 'send-options flags))))
 
-      (defun recvmsg (socket message &optional flags)
-        "Receive a message from SOCKET and store it in MESSAGE."
-        (with-socket-locked (socket)
-          (call-ffi -1 '%recvmsg (socket-%socket socket) message
-                    (foreign-bitfield-value 'recv-options flags)))))
+(defun-zmq3 msg-recv (message socket &optional flags)
+  "Receive a message from SOCKET and store it in MESSAGE."
+  (with-socket-locked (socket)
+    (call-ffi -1 '%msg-recv message (socket-%socket socket)
+              (foreign-bitfield-value 'recv-options flags))))
 
 (defmacro with-poll-items ((items-var size-var) items &body body)
   "Evaluate BODY in an environment where ITEMS-VAR is bound to a foreign array

@@ -94,32 +94,40 @@
 (defcfun (%msg-size "zmq_msg_size") size-t
   (msg (:pointer (:struct msg))))
 
+(when #.(eql zmq-version-major 3)
+      (defcfun (%recvmsg "zmq_recvmsg") :int
+        (socket socket)
+        (msg (:pointer (:struct msg)))
+        (flags recv-options))
+      (defcfun (%msg-recv "zmq_msg_recv") :int
+        (msg (:pointer (:struct msg)))
+        (socket socket)
+        (flags recv-options))
+
+      (defcfun (%sendmsg "zmq_sendmsg") :int
+        (socket socket)
+        (msg (:pointer (:struct msg)))
+        (flags send-options))
+      (defcfun (%msg-send "zmq_msg_send") :int
+        (msg (:pointer (:struct msg)))
+        (socket socket)
+        (flags send-options)))
+
+(when #.(eql zmq-version-major 2)
+      (defcfun (%recv "zmq_recv") :int
+        (socket socket)
+        (msg (:pointer (:struct msg)))
+        (flags recv-options))
+
+      (defcfun (%send "zmq_send") :int
+        (socket socket)
+        (msg (:pointer (:struct msg)))
+        (flags send-options)))
+
 (defcfun (%poll "zmq_poll") :int
   (items (:pointer (:struct pollitem)))
   (nitems :int)
   (timeout :long))
-
-(cond
-  (#.(eql zmq-version-major 2)
-     (defcfun (%recv "zmq_recv") :int
-       (socket socket)
-       (msg (:pointer (:struct msg)))
-       (flags recv-options))
-
-     (defcfun (%send "zmq_send") :int
-       (socket socket)
-       (msg (:pointer (:struct msg)))
-       (flags send-options)))
-  (#.(eql zmq-version-major 3)
-     (defcfun (%recvmsg "zmq_recvmsg") :int
-       (socket socket)
-       (msg (:pointer (:struct msg)))
-       (flags recv-options))
-
-     (defcfun (%sendmsg "zmq_sendmsg") :int
-       (socket socket)
-       (msg (:pointer (:struct msg)))
-       (flags send-options))))
 
 (defcfun (%setsockopt "zmq_setsockopt") :int
   (socket socket)
