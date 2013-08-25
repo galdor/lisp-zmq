@@ -7,6 +7,18 @@ messaging library.
 
 More information can be found on <http://wandrian.net/lisp-zmq.html>.
 
+## Compatibility
+
+While the stable version of `lisp-zmq` only supports ZeroMQ 2.x, the `zmq3`
+branch now support both ZeroMQ 2.x and ZeroMQ 3.2.x with x greater or equal to
+2. `zmq3` will be merged in master as soon as it is complete, and a new
+stable version of `lisp-zmq` will be released.
+
+The only feature currently missing to the `zmq3` branch is the monitoring API,
+i.e. `zmq_socket_monitor(). I will add it soon.
+
+If you were to test the `zmq3` branch, I would be happy to hear about it.
+
 ## Contact
 
 If you have suggestions, or if you have found a bug, send me a message via Github
