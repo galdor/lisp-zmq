@@ -2,8 +2,7 @@
 
 Before you read this tutorial, I recommend reading the
 [ZMQ Guide](http://zguide.zeromq.org/page:all "ZMQ Guide"). It will
-explain the fundamentals, which will make a lot of what's to follow
-make more sense.
+explain the fundamentals, and what's to follow will make more sense.
 
 ### PUB-SUB
 
