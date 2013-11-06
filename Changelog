@@ -1,7 +1,7 @@
 
 Version 1.5.0 (2013-11-06)
 
-- Add ZeroMQ 3.2.2 support.
+- Add ZeroMQ 3.2.2 support (thanks to Valeriy Zamarayev for the initial work).
 - Introduce MSG-SEND and MSG-RECV. They are only available when using ZeroMQ
   3.x.  SEND and RECV both support ZeroMQ 2.x and 3.x.
 - Introduce CTX-NEW, CTX-DESTROY, CTX-SET and CTX-GET, based on the new
