@@ -1,4 +1,17 @@
 
+Version 1.5.0 (2013-XX-XX)
+
+- Add ZeroMQ 3.2.2 support.
+- Introduce SENDMSG and RECVMSG. They are only available when using ZeroMQ 3.x.
+  SEND and RECV both support ZeroMQ 2.x and 3.x.
+- Introduce CTX-NEW, CTX-DESTROY, CTX-SET and CTX-GET, based on the new
+  context manipulation functions of ZeroMQ 3.x. They are only available when
+  using ZeroMQ 3.x.
+  INIT and TERM both support ZeroMQ 2.x and 3.x. WITH-CONTEXT still uses INIT
+  and TERM.
+- The timeout argument of ZMQ-POLL is now using milliseconds.
+
+
 Version 1.4.1 (2012-10-27)
 
 - Fix the WITH-SOCKET-LOCKED macro.

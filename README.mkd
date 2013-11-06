@@ -9,15 +9,13 @@ More information can be found on <http://wandrian.net/lisp-zmq.html>.
 
 ## Compatibility
 
-While the stable version of `lisp-zmq` only supports ZeroMQ 2.x, the `zmq3`
-branch now support both ZeroMQ 2.x and ZeroMQ 3.2.x with x greater or equal to
-2. `zmq3` will be merged in master as soon as it is complete, and a new
-stable version of `lisp-zmq` will be released.
+This binding is compatible with both stable ZeroMQ API available, i.e. ZeroMQ
+2.2.x and ZeroMQ 3.2.x with x greater or equal to 2. ZeroMQ 3.0.0 (alpha),
+ZeroMQ 3.1.0 (beta), ZeroMQ 3.2.0 (RC1) and ZeroMQ 3.2.1 (RC2) are not
+supported.
 
-The only feature currently missing to the `zmq3` branch is the monitoring API,
-i.e. `zmq_socket_monitor(). I will add it soon.
-
-If you were to test the `zmq3` branch, I would be happy to hear about it.
+In `lisp-zmq`, 2.x designates the 2.2.x version, and 3.x designates the 3.2.x
+— with x greater or equal to 2 — version.
 
 ## Contact
 

@@ -9,7 +9,9 @@
               :initial-contents contents))
 
 (test version
-  (is (= (car (zmq:version)) 2)))
+  (let ((version (zmq:version)))
+    (is (or (= (car version) 2)
+            (= (car version) 3)))))
 
 (test empty-messages
   (zmq:with-msg-init (msg)
@@ -96,18 +98,6 @@
       (zmq:setsockopt socket :backlog 42)
       (is (= (zmq:getsockopt socket :backlog) 42)))))
 
-(test int64-socket-options
-  (zmq:with-context (context 0)
-    (zmq:with-socket (socket context :sub)
-      (zmq:setsockopt socket :swap 17179869184)
-      (is (= (zmq:getsockopt socket :swap) 17179869184)))))
-
-(test uint64-socket-options
-  (zmq:with-context (context 0)
-    (zmq:with-socket (socket context :sub)
-      (zmq:setsockopt socket :hwm 17179869184)
-      (is (= (zmq:getsockopt socket :hwm) 17179869184)))))
-
 (test string-socket-options
   (zmq:with-context (context 0)
     (zmq:with-socket (socket context :sub)
@@ -119,8 +109,8 @@
     (zmq:with-sockets ((pub-socket context :pub)
                        (sub-socket context :sub))
       (zmq:setsockopt sub-socket :subscribe "")
-      (zmq:bind sub-socket "inproc://test")
-      (zmq:connect pub-socket "inproc://test")
+      (zmq:bind pub-socket "inproc://test")
+      (zmq:connect sub-socket "inproc://test")
       (zmq:with-msg-init-data (msg "test")
         (zmq:send pub-socket msg))
       (zmq:with-msg-init (msg)
@@ -132,8 +122,8 @@
     (zmq:with-sockets ((pub-socket context :pub)
                        (sub-socket context :sub))
       (zmq:setsockopt sub-socket :subscribe "")
-      (zmq:bind sub-socket "inproc://test")
-      (zmq:connect pub-socket "inproc://test")
+      (zmq:bind pub-socket "inproc://test")
+      (zmq:connect sub-socket "inproc://test")
       (zmq:with-msg-init-data (msg "")
         (zmq:send pub-socket msg))
       (zmq:with-msg-init (msg)
@@ -145,13 +135,13 @@
     (zmq:with-sockets ((pub-socket context :pub)
                        (sub-socket context :sub))
       (zmq:setsockopt sub-socket :subscribe "")
-      (zmq:bind sub-socket "inproc://test")
-      (zmq:connect pub-socket "inproc://test")
+      (zmq:bind pub-socket "inproc://test")
+      (zmq:connect sub-socket "inproc://test")
       (zmq:with-msg-init-data (msg "test")
         (zmq:send pub-socket msg))
       (zmq:with-poll-items (items nb-items)
                            ((sub-socket :pollin))
-        (let ((nb-signaled-items (zmq:poll items nb-items -1)))
+        (let ((nb-signaled-items (zmq:poll items nb-items 1000)))
           (is (= nb-signaled-items 1))
           (is-true (zmq:poll-item-events-signaled-p
                     (zmq:poll-items-aref items 0) :pollin))

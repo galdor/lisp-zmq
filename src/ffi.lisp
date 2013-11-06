@@ -1,4 +1,3 @@
-
 (in-package :zmq)
 
 (define-foreign-library libzmq
@@ -13,24 +12,15 @@
 
 (defctype socket :pointer)
 (defctype context :pointer)
-(defctype msg :pointer)
-
-(defcstruct pollitem
-  (socket socket)
-  (fd #+win32 win32-socket
-      #-win32 :int)
-  (events :short)
-  (revents :short))
-
-(defcstruct msg
-  (content :pointer)
-  (flags :uchar)
-  (vsm-size :uchar)
-  (vsm-data :uchar :count #.max-vsm-size))
 
 (defcfun (%bind "zmq_bind") :int
   (socket socket)
   (endpoint :string))
+
+(when #.(eql zmq-version-major 3)
+      (defcfun (%unbind "zmq_unbind") :int
+        (socket socket)
+        (endpoint :string)))
 
 (defcfun (%close "zmq_close") :int
   (socket socket))
@@ -38,6 +28,11 @@
 (defcfun (%connect "zmq_connect") :int
   (socket socket)
   (endpoint :string))
+
+(when #.(eql zmq-version-major 3)
+      (defcfun (%unbind "zmq_disconnect") :int
+        (socket socket)
+        (endpoint :string)))
 
 (defcfun (%errno "zmq_errno") :int)
 
@@ -49,6 +44,24 @@
 
 (defcfun (%init "zmq_init") context
   (io-threads :int))
+
+(defcfun (%term "zmq_term") :int
+  (context context))
+
+(when #.(eql zmq-version-major 3)
+      (defcfun (%ctx-new "zmq_ctx_new") context)
+
+      (defcfun (%ctx-destroy "zmq_ctx_destroy") :int
+        (context context))
+
+      (defcfun (%ctx-set "zmq_ctx_set") :int
+        (context context)
+        (option context-options)
+        (optval :int))
+
+      (defcfun (%ctx-get "zmq_ctx_get") :int
+        (context context)
+        (option context-options)))
 
 (defcfun (%msg-close "zmq_msg_close") :int
   (msg (:pointer (:struct msg))))
@@ -81,20 +94,40 @@
 (defcfun (%msg-size "zmq_msg_size") size-t
   (msg (:pointer (:struct msg))))
 
+(when #.(eql zmq-version-major 3)
+      (defcfun (%recvmsg "zmq_recvmsg") :int
+        (socket socket)
+        (msg (:pointer (:struct msg)))
+        (flags recv-options))
+      (defcfun (%msg-recv "zmq_msg_recv") :int
+        (msg (:pointer (:struct msg)))
+        (socket socket)
+        (flags recv-options))
+
+      (defcfun (%sendmsg "zmq_sendmsg") :int
+        (socket socket)
+        (msg (:pointer (:struct msg)))
+        (flags send-options))
+      (defcfun (%msg-send "zmq_msg_send") :int
+        (msg (:pointer (:struct msg)))
+        (socket socket)
+        (flags send-options)))
+
+(when #.(eql zmq-version-major 2)
+      (defcfun (%recv "zmq_recv") :int
+        (socket socket)
+        (msg (:pointer (:struct msg)))
+        (flags recv-options))
+
+      (defcfun (%send "zmq_send") :int
+        (socket socket)
+        (msg (:pointer (:struct msg)))
+        (flags send-options)))
+
 (defcfun (%poll "zmq_poll") :int
   (items (:pointer (:struct pollitem)))
   (nitems :int)
   (timeout :long))
-
-(defcfun (%recv "zmq_recv") :int
-  (socket socket)
-  (msg (:pointer (:struct msg)))
-  (flags recv-options))
-
-(defcfun (%send "zmq_send") :int
-  (socket socket)
-  (msg (:pointer (:struct msg)))
-  (flags send-options))
 
 (defcfun (%setsockopt "zmq_setsockopt") :int
   (socket socket)
@@ -109,9 +142,6 @@
 (defcfun (%strerror "zmq_strerror") :string
   (errnum :int))
 
-(defcfun (%term "zmq_term") :int
-  (context context))
-
 (defcfun (%version "zmq_version") :void
   (major (:pointer :int))
   (minor (:pointer :int))
@@ -121,6 +151,13 @@
   (device device-type)
   (frontend socket)
   (backend socket))
+
+; 3.x
+(when #.(eql zmq-version-major 3)
+  (defcfun (%proxy "zmq_proxy") :int
+    (frontend socket)
+    (backend socket)
+    (capture socket)))
 
 (defcfun (%stopwatch-start "zmq_stopwatch_start") :pointer)
 
