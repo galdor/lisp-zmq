@@ -1,7 +1,7 @@
 # lisp-zmq
 
-**WARNING** I do not use or maintain this system for years. Feel free to
-contact me if you are interested to take ownership of it.
+**WARNING** I have not use this system for years and do not maintain it. Feel
+free to contact me if you are interested to take ownership of it.
 
 ## Description
 
