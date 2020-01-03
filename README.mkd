@@ -1,5 +1,8 @@
 # lisp-zmq
 
+**WARNING** I do not use or maintain this system for years. Feel free to
+contact me if you are interested to take ownership of it.
+
 ## Description
 
 `lisp-zmq` is a Common Lisp binding for the [zeromq](http://zeromq.org)
